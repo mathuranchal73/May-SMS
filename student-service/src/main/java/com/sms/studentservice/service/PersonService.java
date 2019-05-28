@@ -1,0 +1,44 @@
+package com.sms.studentservice.service;
+
+import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.Application;
+import com.sms.studentservice.model.Person;
+
+@RefreshScope
+@RestController
+public class PersonService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
+	
+	@Autowired
+    private RestTemplate restTemplate;
+	
+	@Autowired
+    private EurekaClient eurekaClient;
+   
+    @Value("${service.person-service.serviceId}")
+    private String personServiceId;
+    
+    public Person findPersonById(Long id){
+       Application application = eurekaClient.getApplication(personServiceId);
+        InstanceInfo instanceInfo = application.getInstances().get(0);
+        String url = "http://"+instanceInfo.getIPAddr()+ ":"+instanceInfo.getPort()+"/"+"person/"+id;
+        System.out.println("Hitting Person Service Endpoint" + url);
+        Person person =restTemplate.getForObject(url, Person.class);
+        logger.info("Person ID returned"+person.toString());
+        return person;
+    }
+
+}

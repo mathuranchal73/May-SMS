@@ -1,0 +1,10 @@
+package com.sms.studentservice.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.sms.studentservice.model.Student;
+
+@Repository
+public interface StudentRepository extends JpaRepository<Student,Long> {
+
+}

@@ -1,0 +1,76 @@
+package com.sms.studentservice.service;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.sms.studentservice.model.Student;
+import com.sms.studentservice.payload.StudentRequest;
+
+public class StudentService {
+	
+	
+	public Response createStudent(StudentRequest entity) {
+	    Long personId = entity.getPersonId();
+	    Long studyProgrammeId = entity.getStudyProgrammeId();
+	    String firstName = StringUtils.trim(entity.getFirstName());
+	    String lastName = StringUtils.trim(entity.getLastName());
+	    String nickname = StringUtils.trim(entity.getNickname());
+	    Boolean lodging = entity.getLodging();
+
+	    if (personId == null || studyProgrammeId == null || lodging == null) {
+	      return Response.status(Status.BAD_REQUEST).build();
+	    }
+
+	    if (StringUtils.isBlank(firstName) || StringUtils.isBlank(lastName)) {
+	      return Response.status(Status.BAD_REQUEST).build();
+	    }
+
+	    Person person = personController.findPersonById(personId);
+	    if (person == null) {
+	      return Response.status(Status.BAD_REQUEST).build();
+	    }
+
+	    StudyProgramme studyProgramme = studyProgrammeController.findStudyProgrammeById(studyProgrammeId);
+	    if (studyProgramme == null) {
+	      return Response.status(Status.BAD_REQUEST).build();
+	    }
+
+	    if (!userController.checkUserVariableKeysExist(entity.getVariables().keySet())) {
+	      return Response.status(Status.BAD_REQUEST).build();
+	    }
+
+	    StudentActivityType activityType = entity.getActivityTypeId() != null ? studentActivityTypeController.findStudentActivityTypeById(entity
+	        .getActivityTypeId()) : null;
+	    StudentExaminationType examinationType = entity.getExaminationTypeId() != null ? studentExaminationTypeController.findStudentExaminationTypeById(entity
+	        .getExaminationTypeId()) : null;
+	    StudentEducationalLevel educationalLevel = entity.getEducationalLevelId() != null ? studentEducationalLevelController
+	        .findStudentEducationalLevelById(entity.getEducationalLevelId()) : null;
+	    Nationality nationality = entity.getNationalityId() != null ? nationalityController.findNationalityById(entity.getNationalityId()) : null;
+	    Municipality municipality = entity.getMunicipalityId() != null ? municipalityController.findMunicipalityById(entity.getMunicipalityId()) : null;
+	    Language language = entity.getLanguageId() != null ? languageController.findLanguageById(entity.getLanguageId()) : null;
+	    School school = entity.getSchoolId() != null ? schoolController.findSchoolById(entity.getSchoolId()) : null;
+	    StudentStudyEndReason studyEndReason = entity.getStudyEndReasonId() != null ? studentStudyEndReasonController.findStudentStudyEndReasonById(entity
+	        .getStudyEndReasonId()) : null;
+	    Curriculum curriculum = entity.getCurriculumId() != null ? curriculumController.findCurriculumById(entity.getCurriculumId()) : null;
+
+	    Student student = studentController.createStudent(person, firstName, lastName, nickname, entity.getAdditionalInfo(),
+	        toDate(entity.getStudyTimeEnd()), activityType, examinationType, educationalLevel, entity.getEducation(), nationality, municipality, language, school,
+	        studyProgramme, curriculum, entity.getPreviousStudies(), toDate(entity.getStudyStartDate()), toDate(entity.getStudyEndDate()), studyEndReason,
+	        entity.getStudyEndText());
+	    
+	    if (Boolean.TRUE.equals(lodging) && entity.getStudyStartDate() != null)
+	      studentController.addLodgingPeriod(student, toDate(entity.getStudyStartDate()), toDate(entity.getStudyEndDate()));
+	      
+	    userController.updateUserVariables(student, entity.getVariables());
+	    studentController.updateStudentTags(student, entity.getTags());
+	    studentController.updateStudentAdditionalContactInfo(student, entity.getAdditionalContactInfo());
+
+	    return Response.ok(objectFactory.createModel(student)).build();
+	  }
+
+
+}

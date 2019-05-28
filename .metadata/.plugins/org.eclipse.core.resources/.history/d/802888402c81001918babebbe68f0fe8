@@ -1,0 +1,51 @@
+package com.sms.studentservice.controller;
+
+import java.net.URI;
+
+import javax.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.sms.studentservice.payload.ApiResponse;
+import com.sms.studentservice.payload.StudentRequest;
+import com.sms.studentservice.service.StudentService;
+
+import io.swagger.annotations.Api;
+
+
+
+@RestController
+@RequestMapping(value="/student")
+@Api(value="student", description = "Data service operations on Student", tags=("student"))
+public class StudentController {
+	
+	@Autowired
+	StudentService studentService;
+	
+	private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
+	
+
+	
+	@PostMapping
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> createStudent(@Valid @RequestBody StudentRequest studentRequest) {
+        Student student = studentService.createStudent(studentRequest);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{studentId}")
+                .buildAndExpand(student.getId()).toUri();
+
+        return ResponseEntity.created(location)
+                .body(new ApiResponse(true, "Student Created Successfully"));
+    }
+
+	
+}

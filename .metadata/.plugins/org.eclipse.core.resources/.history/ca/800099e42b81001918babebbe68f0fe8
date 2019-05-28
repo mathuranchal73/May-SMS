@@ -1,0 +1,15 @@
+package com.sms.studentservice.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+
+@RestController
+@RequestMapping(value="/student")
+@Api(value="student", description = "Data service operations on Student", tags=("student"))
+public class StudentController {
+	
+	
+
+}
