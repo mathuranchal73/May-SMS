@@ -1,8 +1,6 @@
 package com.sms.studentservice.service;
 
-import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
+/**import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +15,10 @@ import com.netflix.discovery.shared.Application;
 import com.sms.studentservice.model.Person;
 
 @RefreshScope
-@RestController
+@RestController**/
 public class PersonService {
 	
-	private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
+	/**private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
 	
 	@Autowired
     private RestTemplate restTemplate;
@@ -39,6 +37,6 @@ public class PersonService {
         Person person =restTemplate.getForObject(url, Person.class);
         logger.info("Person ID returned"+person.toString());
         return person;
-    }
+    }**/
 
 }
